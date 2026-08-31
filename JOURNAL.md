@@ -15,3 +15,7 @@ Added setuptools packaging metadata so `runner_service` is installed by `uv sync
 ## 2026-08-31 — release audit
 
 Added a fail-closed image release audit. It correctly blocks the current runner and Playwright base image placeholders until immutable digests are populated and `docker buildx imagetools inspect` verifies both linux/amd64 and linux/arm64.
+
+## 2026-08-31 — architecture correction
+
+Corrected `ARCHITECTURE.md` to describe the local-only prototype, current Python primitives, verified-subject identity model, exact RBAC, best-effort cleanup, bounded Ceph retention, deployment-only routing controls, required gVisor gate, staging network verification, and blocked image digest verification without production overclaims.
