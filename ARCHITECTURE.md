@@ -16,7 +16,7 @@ The intended route is `on.jhbutler.info/playwright-runner` through the existing 
 
 The versioned submission contract validates code size, dependency specs, environment-variable names and values, timeout, and bounded retention. It validates payload constraints; it does not claim to validate JavaScript syntax.
 
-The backend ServiceAccount is scoped in `playwright-tenant` to the resources it uses: create/get/delete `Secrets` and `ConfigMaps`, and create/get/watch/delete `Jobs`. Runner Jobs use a separate ServiceAccount with `automountServiceAccountToken: false`, Restricted PSS settings, non-root execution, no privilege escalation, dropped capabilities, a read-only root filesystem, and narrowly scoped writable `emptyDir` scratch paths.
+The backend ServiceAccount is scoped in `playwright-tenant` to the resources it uses: create/get/delete `Secrets` and `ConfigMaps`, and create/get/watch/delete `Jobs`. The template disables token mounting with `automountServiceAccountToken: false`; a dedicated runner ServiceAccount exists, and explicit Job wiring must be verified before release. The intended runner settings are Restricted PSS, non-root execution, no privilege escalation, dropped capabilities, a read-only root filesystem, and narrowly scoped writable `emptyDir` scratch paths.
 
 Jobs use `activeDeadlineSeconds`, resource limits, and `ttlSecondsAfterFinished`. User code is delivered through a temporary ConfigMap and secrets through environment variables in a temporary Secret. Cleanup of Job, Secret, and ConfigMap is attempted on completion, failure, cancellation, and deadline; cleanup failures are observable. Retry policy is a future integration responsibility and is not implemented in the primitive.
 
@@ -24,6 +24,6 @@ Jobs use `activeDeadlineSeconds`, resource limits, and `ttlSecondsAfterFinished`
 
 Cilium policy intends to allow only external DNS and public TCP 80/443 while denying Kubernetes API, node, private/internal, metadata, pod, service, and other cluster destinations. This boundary requires staging verification and is not claimed as proven by this repository.
 
-Logs, screenshots, traces, and videos are bounded retained data in the local Ceph S3-compatible bucket. Keys are scoped by opaque owner ID and job ID. The backend enforces owner-only listing/download and issues runners short-lived, job-prefix-scoped upload authority; runners never receive bucket-wide credentials. Retention is user-selected within documented bounds and requires cleanup execution.
+The intended artifact design is for logs, screenshots, traces, and videos to be bounded retained data in the local Ceph S3-compatible bucket. Keys are scoped by opaque owner ID and job ID. The control-plane contract requires owner-only listing/download and short-lived, job-prefix-scoped upload authority; runners must never receive bucket-wide credentials. Full S3 integration is not implemented in the local primitives. Retention is user-selected within documented bounds and requires cleanup execution.
 
 Target-domain allowlisting is a future opt-in mode and is disabled by default.
