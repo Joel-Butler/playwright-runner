@@ -1,0 +1,26 @@
+apiVersion: batch/v1
+kind: Job
+metadata: {name: runner-template, namespace: playwright-tenant}
+spec:
+  backoffLimit: 0
+  activeDeadlineSeconds: 900
+  ttlSecondsAfterFinished: 60
+  template:
+    metadata: {labels: {app: playwright-runner, tenant: untrusted}}
+    spec:
+      runtimeClassName: gvisor
+      automountServiceAccountToken: false
+      restartPolicy: Never
+      securityContext: {runAsNonRoot: true, seccompProfile: {type: RuntimeDefault}}
+      containers:
+      - name: runner
+        image: ghcr.io/example/playwright-runner@sha256:REPLACE_WITH_VERIFIED_MULTIARCH_DIGEST
+        imagePullPolicy: Always
+        securityContext: {allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: {drop: [ALL]}}
+        envFrom: [{secretRef: {name: job-secrets}}]
+        volumeMounts: [{name: scratch, mountPath: /tmp}, {name: code, mountPath: /workspace, readOnly: true}]
+        resources: {requests: {cpu: 100m, memory: 256Mi}, limits: {cpu: "2", memory: 2Gi}}
+      volumes:
+      - {name: scratch, emptyDir: {sizeLimit: 4Gi}}
+      - {name: code, configMap: {name: job-code, defaultMode: 0444}}
+

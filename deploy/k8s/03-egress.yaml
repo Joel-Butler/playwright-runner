@@ -1,0 +1,23 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata: {name: runner-public-egress-only, namespace: playwright-tenant}
+spec:
+  endpointSelector: {matchLabels: {app: playwright-runner}}
+  egressDeny:
+  - toCIDRSet:
+    - {cidr: 10.0.0.0/8}
+    - {cidr: 172.16.0.0/12}
+    - {cidr: 192.168.0.0/16}
+    - {cidr: 169.254.0.0/16}
+    - {cidr: 100.64.0.0/10}
+    - {cidr: 127.0.0.0/8}
+    - {cidr: "::1/128"}
+    - {cidr: "fc00::/7"}
+  egress:
+  - toEntities: [world]
+    toPorts:
+    - ports: [{port: "80", protocol: TCP}, {port: "443", protocol: TCP}]
+  - toEndpoints:
+    - matchLabels: {k8s-app: kube-dns, "k8s:io.kubernetes.pod.namespace": kube-system}
+    toPorts: [{ports: [{port: "53", protocol: UDP}, {port: "53", protocol: TCP}]}]
+  # No cluster, node, private-range, metadata, or service-CIDR destinations are allowed.

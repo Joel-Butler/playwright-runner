@@ -1,0 +1,2 @@
+<!doctype html><meta charset="utf-8"><title>Playwright Runner</title><textarea id="code" rows="16" cols="80">// Playwright code</textarea><br><button id="run">Submit</button><pre id="out"></pre><script>run.onclick=async()=>{out.textContent='Submitting…';const r=await fetch('/api/v1/jobs',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({code:code.value})});out.textContent=await r.text()}</script>
+
