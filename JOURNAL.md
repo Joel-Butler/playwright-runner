@@ -19,3 +19,9 @@ Added a fail-closed image release audit. It correctly blocks the current runner 
 ## 2026-08-31 — architecture correction
 
 Corrected `ARCHITECTURE.md` to describe the local-only prototype, current Python primitives, verified-subject identity model, exact RBAC, best-effort cleanup, bounded Ceph retention, deployment-only routing controls, required gVisor gate, staging network verification, and blocked image digest verification without production overclaims.
+
+## 2026-08-31 — closeout
+
+Current local `main` is at `edc4f3e`, including the prototype foundation and P0/P1 validation commits. The 27-test pytest suite passes; static policy checks, compileall, YAML parsing, runner shell syntax, `git diff --check`, and Gitleaks pass. The fail-closed image audit correctly blocks the placeholder Dockerfile and Job digests. Architecture documentation now removes CDP exposure and production overclaims and clarifies Cloudflare identity, RBAC, cleanup, the intended Ceph design, gVisor, and staging gates. No cluster writes were performed.
+
+Remaining blockers are real immutable multi-architecture image digests and verification, Docker daemon access for local image builds, gVisor RuntimeClass verification, and staging network isolation. `ORCHESTRATION_PROMPT.md` remains intentionally untracked and untouched. The journal closeout is committed locally; pushing to `origin/main` remains pending explicit approval.
