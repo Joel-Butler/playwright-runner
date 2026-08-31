@@ -14,11 +14,11 @@ The intended route is `on.jhbutler.info/playwright-runner` through the existing 
 
 ## Control plane and execution
 
-The versioned submission contract validates code size, dependency specs, environment-variable names and values, timeout, concurrency, and bounded retention. It validates payload constraints; it does not claim to validate JavaScript syntax.
+The versioned submission contract validates code size, dependency specs, environment-variable names and values, timeout, and bounded retention. It validates payload constraints; it does not claim to validate JavaScript syntax.
 
 The backend ServiceAccount is scoped in `playwright-tenant` to the resources it uses: create/get/delete `Secrets` and `ConfigMaps`, and create/get/watch/delete `Jobs`. Runner Jobs use a separate ServiceAccount with `automountServiceAccountToken: false`, Restricted PSS settings, non-root execution, no privilege escalation, dropped capabilities, a read-only root filesystem, and narrowly scoped writable `emptyDir` scratch paths.
 
-Jobs use `activeDeadlineSeconds`, resource limits, and `ttlSecondsAfterFinished`. User code is delivered through a temporary ConfigMap and secrets through environment variables in a temporary Secret. Cleanup of Job, Secret, and ConfigMap is attempted on completion, failure, cancellation, and deadline; failures are observable and retried by control-plane policy.
+Jobs use `activeDeadlineSeconds`, resource limits, and `ttlSecondsAfterFinished`. User code is delivered through a temporary ConfigMap and secrets through environment variables in a temporary Secret. Cleanup of Job, Secret, and ConfigMap is attempted on completion, failure, cancellation, and deadline; cleanup failures are observable. Retry policy is a future integration responsibility and is not implemented in the primitive.
 
 ## Network and artifacts
 
@@ -27,4 +27,3 @@ Cilium policy intends to allow only external DNS and public TCP 80/443 while den
 Logs, screenshots, traces, and videos are bounded retained data in the local Ceph S3-compatible bucket. Keys are scoped by opaque owner ID and job ID. The backend enforces owner-only listing/download and issues runners short-lived, job-prefix-scoped upload authority; runners never receive bucket-wide credentials. Retention is user-selected within documented bounds and requires cleanup execution.
 
 Target-domain allowlisting is a future opt-in mode and is disabled by default.
-
