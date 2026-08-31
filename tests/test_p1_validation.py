@@ -84,7 +84,11 @@ def test_every_container_image_is_digest_pinned_and_release_audit_is_required():
                 refs.append(match.group(1))
     assert refs
     assert all("@sha256:" in ref for ref in refs)
-    assert all("REPLACE_WITH" in ref or not re.fullmatch(r".*@sha256:[0-9a-f]{64}", ref) for ref in refs)
+    placeholders = {
+        "mcr.microsoft.com/playwright@sha256:REPLACE_WITH_VERIFIED_PLAYWRIGHT_BASE_DIGEST",
+        "ghcr.io/example/playwright-runner@sha256:REPLACE_WITH_VERIFIED_MULTIARCH_DIGEST",
+    }
+    assert all(ref in placeholders or re.fullmatch(r".*@sha256:[0-9a-f]{64}", ref) for ref in refs)
 
 
 def test_manifest_security_context_network_and_exact_rbac_scope():
